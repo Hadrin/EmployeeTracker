@@ -18,6 +18,8 @@ Created by: [David McGinley](https://github.com/Hadrin)
 
 Employee Tracker is a command line program which interfaces with a MySQL database to help track employees. Employees can be created and modified, as well as the departments and roles within those departments that the employees fill.
 
+A video walkthrough can be found here: [YOUTUBE](https://www.youtube.com/watch?v=YRyNSScceQY)
+
 ## Installation
 Download source, install any prerequisites, npm start
 
