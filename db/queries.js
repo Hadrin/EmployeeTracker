@@ -18,13 +18,13 @@ class sql {
   //Create tables if necessary
   create() {
     connection.query(
-      `CREATE TABLE IF NOT EXISTS department (id INT PRIMARY KEY, name VARCHAR(30));`
+      `CREATE TABLE IF NOT EXISTS department (id INT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(30));`
     );
     connection.query(
-      `CREATE TABLE IF NOT EXISTS role (id INT PRIMARY KEY, title VARCHAR(30), salary DECIMAL, department_id INT REFERENCES department(id));`
+      `CREATE TABLE IF NOT EXISTS role (id INT PRIMARY KEY AUTO_INCREMENT, title VARCHAR(30), salary DECIMAL, department_id INT REFERENCES department(id));`
     );
     connection.query(
-      `CREATE TABLE IF NOT EXISTS employee (id INT PRIMARY KEY, first_name VARCHAR(30), last_name VARCHAR(30), role_id INT REFERENCES role(id), manager_id INT);`
+      `CREATE TABLE IF NOT EXISTS employee (id INT PRIMARY KEY AUTO_INCREMENT, first_name VARCHAR(30), last_name VARCHAR(30), role_id INT REFERENCES role(id), manager_id INT);`
     );
   }
 
@@ -54,26 +54,64 @@ class sql {
     });
   }
 
+  //Get a formatted array for use in prompts
+  getDepartmentArray() {
+    let departmentArray = [];
+    connection.query(
+      `SELECT * FROM department;`,
+      async function (err, results) {
+        results.map((department) =>
+          departmentArray.push(department.id + ": " + department.name)
+        );
+      }
+    );
+    return departmentArray;
+  }
+  getRoleArray() {
+    let roleArray = [];
+    connection.query(`SELECT * FROM role;`, async function (err, results) {
+      results.map((role) => roleArray.push(role.id + ": " + role.title));
+    });
+    return roleArray;
+  }
+  getBossArray() {
+      let bossArray = [];
+      connection.query(`SELECT * FROM employee WHERE role_id = 1`, async function (err, results) {
+          results.map((manager) => bossArray.push(manager.id + ": " + manager.first_name + " " + manager.last_name));
+      });
+      return bossArray;
+  }
+  getEmployeeArray(){
+    let empArray = [];
+    connection.query(`SELECT * FROM employee`, async function (err, results) {
+        results.map((employee) => empArray.push(employee.id + ": " + employee.first_name + " " + employee.last_name));
+    });
+    return empArray;
+  }
+
   //Create new entries in the database
   createDepartment(name) {
     connection.query(`INSERT INTO department (name) VALUES ('${name}');`);
     this.viewDepartments();
   }
   createRole(title, salary, department_id) {
-    connection.query(`INSERT INTO roles (title, salary, department_id) VALUES ('${title}', ${salary}, ${department_id});`);
+    connection.query(
+      `INSERT INTO role (title, salary, department_id) VALUES ('${title}', ${salary}, ${department_id});`
+    );
     this.viewRoles();
   }
   createEmployee(first, last, role, manager) {
-    connection.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ('${first}', '${last}', ${role}, ${manager});`);
+    connection.query(
+      `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ('${first}', '${last}', ${role}, ${manager});`
+    );
     this.viewEmployees();
   }
 
   //Updates an employee's role
-  updateEmployee(id, role){
-      connection.query(`UPDATE employee SET role_id = ${role} WHERE id = ${id}`);
-      this.viewEmployees();
+  updateEmployee(id, role) {
+    connection.query(`UPDATE employee SET role_id = ${role} WHERE id = ${id}`);
+    this.viewEmployees();
   }
-
 
   //Seeds default info into the database
   seed() {
